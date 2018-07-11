@@ -8,7 +8,7 @@ from keras.optimizers import SGD
 
 BATCH_SIZE = 32
 NUM_CLASSES = 9
-EPOCHS = 1
+EPOCHS = 10
 SAVE_DIR = os.path.join(os.getcwd(), '..', 'models', 'main.h5')
 
 
@@ -36,23 +36,28 @@ model = Sequential()
 
 model.add(Conv2D(32, (3, 3), input_shape=x_train.shape[1:], activation='relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))  # 256 -> 128
-model.add(Dropout(0.2))
+model.add(Dropout(0.25))
 
 model.add(Conv2D(32, (3, 3), padding='same', activation='relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))  # 128 -> 64
 model.add(Dropout(0.25))
 
+model.add(Conv2D(32, (3, 3), padding='same', activation='relu'))
+model.add(MaxPooling2D(pool_size=(2, 2)))  # 64 -> 32
+model.add(Dropout(0.25))
+
 model.add(Flatten())
-model.add(Dense(256, activation='relu'))
-model.add(Dropout(0.35))
+model.add(Dense(NUM_CLASSES * 64, activation='relu'))
+model.add(Dropout(0.25))
 model.add(Dense(NUM_CLASSES, activation='sigmoid'))
 
-sgd = SGD(lr=0.005)
+sgd = SGD(lr=0.005, momentum=True, nesterov=True)
 model.compile(loss='binary_crossentropy',
               optimizer=sgd,
               metrics=['accuracy'])
 
 model.fit(x_train, y_train,
+          verbose=2,
           batch_size=BATCH_SIZE,
           epochs=EPOCHS,
           validation_data=(x_test, y_test),
@@ -60,11 +65,11 @@ model.fit(x_train, y_train,
 
 
 # Score trained model.
-scores = model.evaluate(x_test, y_test, verbose=1)
+scores = model.evaluate(x_test, y_test, verbose=2)
 print('Test loss:', scores[0])
 print('Test accuracy:', scores[1])
 
 # Save model and weights
-if scores[1] > 0.5:
+if scores[1] > 0.9:
     model.save(SAVE_DIR)
     print('Saved trained model at %s ' % SAVE_DIR)
