@@ -1,5 +1,8 @@
 .idea/
+data/test*
+data/train*
 hdri/*.hdr
+renders/*/*0.jpg
 renders/*/*2.jpg
 renders/*/*3.jpg
 renders/*/*4.jpg
@@ -8,5 +11,4 @@ renders/*/*6.jpg
 renders/*/*7.jpg
 renders/*/*8.jpg
 renders/*/*9.jpg
-renders/*/*0.jpg
 *.blend1
