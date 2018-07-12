@@ -14,7 +14,7 @@ from keras.preprocessing.image import load_img, img_to_array
 
 
 CURRENT_DIR: str = os.getcwd()
-DATA_SLICE: int = 10
+DATA_SLICE: int = 8
 
 
 # Function are collecting tags from table.csv to Dict

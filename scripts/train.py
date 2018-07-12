@@ -8,7 +8,7 @@ from keras.optimizers import SGD
 
 BATCH_SIZE = 32
 NUM_CLASSES = 9
-EPOCHS = 10
+EPOCHS = 20
 SAVE_DIR = os.path.join(os.getcwd(), '..', 'models', 'main.h5')
 
 
@@ -51,7 +51,7 @@ model.add(Dense(NUM_CLASSES * 64, activation='relu'))
 model.add(Dropout(0.25))
 model.add(Dense(NUM_CLASSES, activation='sigmoid'))
 
-sgd = SGD(lr=0.005, momentum=True, nesterov=True)
+sgd = SGD(lr=0.005, decay=1e-6, momentum=0.9, nesterov=True)
 model.compile(loss='binary_crossentropy',
               optimizer=sgd,
               metrics=['accuracy'])
