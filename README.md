@@ -20,3 +20,6 @@ Google disk https://drive.google.com/open?id=1hNRDoV4sRBCsfI5vrtP7Tk8vJeup2Esg
 
 
 ### /renders
+
+In the directory are every one of ten render files.  
+All pack saved in google drive and access by link https://drive.google.com/open?id=1DhKXasZgdCgd0ECSRadIGLw6XmlvmBK-
