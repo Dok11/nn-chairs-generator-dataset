@@ -9,14 +9,14 @@ from keras.optimizers import SGD
 
 BATCH_SIZE = 192
 NUM_CLASSES = 9
-EPOCHS = 80
+EPOCHS = 50
 SAVE_DIR = os.path.join(os.getcwd(), '..', 'models', 'main.h5')
 USE_SAVED_MODEL: bool = True
 
 
 def get_dataset():
-    test_file_path = os.path.join(os.getcwd(), '..', 'data', 'test006.h5')
-    train_file_path = os.path.join(os.getcwd(), '..', 'data', 'train006.h5')
+    test_file_path = os.path.join(os.getcwd(), '..', 'data', 'test004.h5')
+    train_file_path = os.path.join(os.getcwd(), '..', 'data', 'train004.h5')
 
     with h5py.File(test_file_path, 'r') as hf:
         test_data = hf['test_data'][:]
@@ -41,18 +41,18 @@ if USE_SAVED_MODEL:
 else:
     model = Sequential()
 
-    model.add(Conv2D(3, (3, 3), input_shape=x_train.shape[1:], activation='relu'))
+    model.add(Conv2D(2, (3, 3), input_shape=x_train.shape[1:], activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))  # 254 -> 128
 
-    model.add(Conv2D(4, (3, 3), padding='same', activation='relu'))
+    model.add(Conv2D(3, (3, 3), padding='same', activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))  # 127 -> 64
     model.add(Dropout(0.1))
 
-    model.add(Conv2D(5, (3, 3), padding='same', activation='relu'))
+    model.add(Conv2D(4, (3, 3), padding='same', activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))  # 63 -> 32
     model.add(Dropout(0.2))
 
-    model.add(Conv2D(6, (3, 3), padding='same', activation='relu'))
+    model.add(Conv2D(4, (3, 3), padding='same', activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))  # 31 -> 16
     model.add(Dropout(0.3))
 
