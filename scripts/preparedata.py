@@ -14,10 +14,11 @@ from keras.preprocessing.image import load_img, img_to_array
 
 
 CURRENT_DIR: str = os.getcwd()
-DATA_SLICE: int = 8
+DATA_SLICE: int = 15
 
 
 # Function are collecting tags from table.csv to Dict
+# https://docs.google.com/spreadsheet/ccc?key=0ArM5yzzCw9IZdEdLWlpHT1FCcUpYQ2RjWmZYWmNwbXc&output=csv
 def get_folder_classes():
     tags_data = {}
 
