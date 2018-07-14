@@ -11,13 +11,14 @@ BATCH_SIZE = 196
 NUM_CLASSES = 6
 EPOCHS = 50
 SAVE_DIR = os.path.join(os.getcwd(), '..', 'models', 'main.h5')
-USE_SAVED_MODEL: bool = True
-SLICE_PART: str = '004'
+USE_SAVED_MODEL: bool = False
+SLICE_COUNT: int = 15
+SLICE_PART: str = '000'
 
 
-def get_dataset():
-    test_file_path = os.path.join(os.getcwd(), '..', 'data', 'test' + SLICE_PART + '.h5')
-    train_file_path = os.path.join(os.getcwd(), '..', 'data', 'train' + SLICE_PART + '.h5')
+def get_dataset(slice_part: str):
+    test_file_path = os.path.join(os.getcwd(), '..', 'data', 'test' + slice_part + '.h5')
+    train_file_path = os.path.join(os.getcwd(), '..', 'data', 'train' + slice_part + '.h5')
 
     with h5py.File(test_file_path, 'r') as hf:
         test_data = hf['test_data'][:]
@@ -30,23 +31,32 @@ def get_dataset():
     return (train_data, train_label), (test_data, test_label)
 
 
-(x_train, y_train), (x_test, y_test) = get_dataset()
-print('x_train shape:', x_train.shape)
-print(x_train.shape[0], 'train samples')
-print(x_test.shape[0], 'test samples')
-
-
 if USE_SAVED_MODEL:
     model = load_model(SAVE_DIR)
 
+    for x in range(SLICE_COUNT):
+        print('Start train', x + 1, 'from', SLICE_COUNT)
+        (x_train, y_train), (x_test, y_test) = get_dataset(str(x).zfill(3))
+
+        model.fit(x_train, y_train,
+                  verbose=2,
+                  batch_size=BATCH_SIZE,
+                  epochs=EPOCHS,
+                  validation_data=(x_test, y_test),
+                  shuffle=True)
+
 else:
+    (x_train, y_train), (x_test, y_test) = get_dataset(SLICE_PART)
+    print('x_train shape:', x_train.shape)
+    print(x_train.shape[0], 'train samples')
+    print(x_test.shape[0], 'test samples')
+
     model = Sequential()
 
-    model.add(Conv2D(4, (3, 3), input_shape=x_train.shape[1:], activation='relu'))
+    model.add(Conv2D(4, (5, 5), input_shape=x_train.shape[1:], activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))  # 254 -> 128
-    model.add(Dropout(0.25))
 
-    model.add(Conv2D(4, (3, 3), padding='same', activation='relu'))
+    model.add(Conv2D(16, (4, 4), padding='same', activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))  # 127 -> 64
     model.add(Dropout(0.25))
 
@@ -56,11 +66,11 @@ else:
 
     model.add(Conv2D(4, (3, 3), padding='same', activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))  # 31 -> 16
-    model.add(Dropout(0.3))
+    model.add(Dropout(0.5))
 
     model.add(Flatten())
-    model.add(Dense(NUM_CLASSES * 32, activation='relu'))
-    model.add(Dropout(0.3))
+    model.add(Dense(NUM_CLASSES * 64, activation='relu'))
+    model.add(Dropout(0.5))
 
     model.add(Dense(NUM_CLASSES, activation='sigmoid'))
 
@@ -69,12 +79,12 @@ else:
                   optimizer=sgd,
                   metrics=['accuracy'])
 
-model.fit(x_train, y_train,
-          verbose=2,
-          batch_size=BATCH_SIZE,
-          epochs=EPOCHS,
-          validation_data=(x_test, y_test),
-          shuffle=True)
+    model.fit(x_train, y_train,
+              verbose=2,
+              batch_size=BATCH_SIZE,
+              epochs=EPOCHS,
+              validation_data=(x_test, y_test),
+              shuffle=True)
 
 
 # Score trained model.
