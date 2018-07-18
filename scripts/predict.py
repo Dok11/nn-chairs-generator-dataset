@@ -8,6 +8,9 @@ MODEL = os.path.join(os.getcwd(), '..', 'models', 'main.h5')
 VALID_EXT_IMAGES = [
     os.path.join(os.getcwd(), '..', 'validation', 'ext.jpg'),
     os.path.join(os.getcwd(), '..', 'validation', 'ext2.jpg'),
+    os.path.join(os.getcwd(), '..', 'validation', 'ext3.jpg'),
+    os.path.join(os.getcwd(), '..', 'validation', 'ext4.jpg'),
+    os.path.join(os.getcwd(), '..', 'validation', '020.jpg'),
     ]
 
 model = load_model(MODEL)

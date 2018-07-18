@@ -12,7 +12,7 @@ NUM_CLASSES = 6
 EPOCHS = 50
 SAVE_DIR = os.path.join(os.getcwd(), '..', 'models', 'main.h5')
 USE_SAVED_MODEL: bool = False
-SLICE_COUNT: int = 15
+SLICE_COUNT: int = 10
 SLICE_PART: str = '000'
 
 
@@ -53,20 +53,20 @@ else:
 
     model = Sequential()
 
-    model.add(Conv2D(4, (5, 5), input_shape=x_train.shape[1:], activation='relu'))
+    model.add(Conv2D(10, (3, 3), input_shape=x_train.shape[1:], activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))  # 254 -> 128
 
-    model.add(Conv2D(16, (4, 4), padding='same', activation='relu'))
+    model.add(Conv2D(16, (3, 3), padding='same', activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))  # 127 -> 64
     model.add(Dropout(0.25))
 
-    model.add(Conv2D(4, (3, 3), padding='same', activation='relu'))
+    model.add(Conv2D(20, (3, 3), padding='same', activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))  # 63 -> 32
     model.add(Dropout(0.25))
 
-    model.add(Conv2D(4, (3, 3), padding='same', activation='relu'))
+    model.add(Conv2D(24, (3, 3), padding='same', activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))  # 31 -> 16
-    model.add(Dropout(0.5))
+    model.add(Dropout(0.25))
 
     model.add(Flatten())
     model.add(Dense(NUM_CLASSES * 64, activation='relu'))
@@ -74,7 +74,7 @@ else:
 
     model.add(Dense(NUM_CLASSES, activation='sigmoid'))
 
-    sgd = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
+    sgd = SGD(lr=0.0025, decay=1e-6, momentum=0.9, nesterov=True)
     model.compile(loss='binary_crossentropy',
                   optimizer=sgd,
                   metrics=['accuracy'])

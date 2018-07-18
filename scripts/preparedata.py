@@ -14,7 +14,7 @@ from keras.preprocessing.image import load_img, img_to_array
 
 
 CURRENT_DIR: str = os.getcwd()
-DATA_SLICE: int = 15
+DATA_SLICE: int = 10
 
 
 # Function are collecting tags from table.csv to Dict
@@ -72,7 +72,7 @@ for slice_index in range(DATA_SLICE):
     for tags, image_name in data[slice_index::DATA_SLICE]:
         image = img_to_array(load_img(image_name, grayscale=True))
 
-        if index % 2 == 0:
+        if index % 4 == 0:
             test_data_list.append(image)
             test_label_list.append(tags)
 
