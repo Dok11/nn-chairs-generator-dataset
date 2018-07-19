@@ -1,9 +1,11 @@
 import csv
+import io
 import os
 from typing import Dict, List
 
 import h5py
 import numpy as np
+import requests
 from keras.preprocessing.image import load_img, img_to_array
 
 # This script generate h5 files with labels and images as numpy.array.
@@ -15,19 +17,22 @@ from keras.preprocessing.image import load_img, img_to_array
 
 CURRENT_DIR: str = os.getcwd()
 DATA_SLICE: int = 10
+CSV_TABLE = 'https://docs.google.com/spreadsheet/ccc?key=1OCbBLuG_de_Dpb8fxeu0Jcn_ZHWkzrrL7GM4Mfcvgnk&output=csv'
 
 
 # Function are collecting tags from table.csv to Dict
-# https://docs.google.com/spreadsheet/ccc?key=0ArM5yzzCw9IZdEdLWlpHT1FCcUpYQ2RjWmZYWmNwbXc&output=csv
 def get_folder_classes():
     tags_data = {}
 
-    with open(os.path.join(CURRENT_DIR, '..', 'table.csv'), 'r') as csv_file:
-        reader = csv.reader(csv_file, delimiter=',')
-        next(reader)
+    response = requests.get(CSV_TABLE)
+    assert response.status_code == 200, 'Wrong status code'
 
-        for row in reader:
-            tags_data[row[0]]: Dict[int] = list(map(int, row[1:-1]))
+    csv_file = io.StringIO(response.text, newline='\r\n')
+    reader = csv.reader(csv_file, delimiter=',')
+    next(reader)
+
+    for row in reader:
+        tags_data[row[0]]: Dict[int] = list(map(int, row[1:-1]))
 
     return tags_data
 
