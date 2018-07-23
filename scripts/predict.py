@@ -4,6 +4,7 @@ import numpy as np
 from keras.models import load_model
 from keras.preprocessing.image import img_to_array, load_img
 
+
 MODEL = os.path.join(os.getcwd(), '..', 'models', 'main.h5')
 VALID_EXT_IMAGES = [
     os.path.join(os.getcwd(), '..', 'validation', 'ext.jpg'),
