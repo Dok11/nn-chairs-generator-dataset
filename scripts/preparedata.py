@@ -16,7 +16,7 @@ from keras.preprocessing.image import load_img, img_to_array
 
 
 CURRENT_DIR: str = os.getcwd()
-DATA_SLICE: int = 15
+DATA_SLICE: int = 2
 CSV_TABLE = 'https://docs.google.com/spreadsheet/ccc?key=1OCbBLuG_de_Dpb8fxeu0Jcn_ZHWkzrrL7GM4Mfcvgnk&output=csv'
 CSV_VALIDATION_TABLE = 'https://docs.google.com/spreadsheet/ccc?key=1DL5ggzlILEQQSkmVXqX1HWMwg0jEPVo8jPIh2Lr7jaA&output=csv'
 
@@ -98,71 +98,69 @@ def get_validation_data():
     return result
 
 
-# ===========================================
-# --- TRAIN DATA ----------------------------
-# -------------------------------------------
+def set_trained_data():
+    data = get_renders_data()
 
-data = get_renders_data()
+    for slice_index in range(DATA_SLICE):
+        print('start work slice with', slice_index, 'of', DATA_SLICE)
 
-for slice_index in range(DATA_SLICE):
-    print('start work slice with', slice_index, 'of', DATA_SLICE)
+        test_data_list = []
+        test_label_list = []
 
-    test_data_list = []
-    test_label_list = []
+        train_data_list = []
+        train_label_list = []
 
-    train_data_list = []
-    train_label_list = []
+        index = 0
+        for tags, image_name in data[slice_index::DATA_SLICE]:
+            image = img_to_array(load_img(image_name, grayscale=True))
 
-    index = 0
-    for tags, image_name in data[slice_index::DATA_SLICE]:
-        image = img_to_array(load_img(image_name, grayscale=True))
+            if index % 4 == 0:
+                test_data_list.append(image)
+                test_label_list.append(tags)
 
-        if index % 4 == 0:
-            test_data_list.append(image)
-            test_label_list.append(tags)
+            else:
+                train_data_list.append(image)
+                train_label_list.append(tags)
 
-        else:
-            train_data_list.append(image)
-            train_label_list.append(tags)
+            index += 1
 
-        index += 1
+        train_data = np.array(train_data_list).astype('uint8')
+        train_label = np.array(train_label_list).astype('uint8')
+        test_data = np.array(test_data_list).astype('uint8')
+        test_label = np.array(test_label_list).astype('uint8')
 
-    train_data = np.array(train_data_list).astype('uint8')
-    train_label = np.array(train_label_list).astype('uint8')
-    test_data = np.array(test_data_list).astype('uint8')
-    test_label = np.array(test_label_list).astype('uint8')
+        slice_str = str(slice_index).zfill(3)
+        train_file = os.path.join(CURRENT_DIR, '..', 'data', 'train' + slice_str + '.h5')
+        test_file = os.path.join(CURRENT_DIR, '..', 'data', 'test' + slice_str + '.h5')
 
-    slice_str = str(slice_index).zfill(3)
-    train_file = os.path.join(CURRENT_DIR, '..', 'data', 'train' + slice_str + '.h5')
-    test_file = os.path.join(CURRENT_DIR, '..', 'data', 'test' + slice_str + '.h5')
+        with h5py.File(train_file, 'w') as hf:
+            hf.create_dataset('train_data', data=train_data)
+            hf.create_dataset('train_label', data=train_label)
 
-    with h5py.File(train_file, 'w') as hf:
-        hf.create_dataset('train_data', data=train_data)
-        hf.create_dataset('train_label', data=train_label)
-
-    with h5py.File(test_file, 'w') as hf:
-        hf.create_dataset('test_data', data=test_data)
-        hf.create_dataset('test_label', data=test_label)
+        with h5py.File(test_file, 'w') as hf:
+            hf.create_dataset('test_data', data=test_data)
+            hf.create_dataset('test_label', data=test_label)
 
 
-# ===========================================
-# --- VALIDATION DATA -----------------------
-# -------------------------------------------
+def set_validation_data():
+    validation_data = get_validation_data()
+    validation_data_list = []
+    validation_label_list = []
 
-validation_data = get_validation_data()
-validation_data_list = []
-validation_label_list = []
+    for validation in validation_data:
+        image = img_to_array(load_img(validation[1], grayscale=True))
 
-for validation in validation_data:
-    image = img_to_array(load_img(validation[1], grayscale=True))
+        validation_data_list.append(image)
+        validation_label_list.append(validation[0])
 
-    validation_data_list.append(image)
-    validation_label_list.append(validation[0])
+    validation_data = np.array(validation_data_list).astype('uint8')
+    validation_label = np.array(validation_label_list).astype('uint8')
 
-validation_data = np.array(validation_data_list).astype('uint8')
-validation_label = np.array(validation_label_list).astype('uint8')
+    validation_file = os.path.join(CURRENT_DIR, '..', 'data', 'validation.h5')
+    with h5py.File(validation_file, 'w') as hf:
+        hf.create_dataset('data', data=validation_data)
+        hf.create_dataset('label', data=validation_label)
 
-validation_file = os.path.join(CURRENT_DIR, '..', 'data', 'validation.h5')
-with h5py.File(validation_file, 'w') as hf:
-    hf.create_dataset('data', data=validation_data)
-    hf.create_dataset('label', data=validation_label)
+
+set_trained_data()
+set_validation_data()
