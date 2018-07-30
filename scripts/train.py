@@ -103,24 +103,23 @@ else:
 
     model.add(Conv2D(48, (3, 3), padding='same', activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))  # 63 -> 32
-    model.add(Dropout(0.1))
+    model.add(Dropout(0.2))
 
     model.add(Conv2D(128, (3, 3), padding='same', activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))  # 31 -> 16
-    model.add(Dropout(0.1))
+    model.add(Dropout(0.2))
 
     model.add(Conv2D(256, (3, 3), padding='same', activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))  # 15 -> 8
-    model.add(Dropout(0.1))
+    model.add(Dropout(0.2))
 
     model.add(Flatten())
     model.add(Dense(128, activation='relu'))
     model.add(Dropout(0.5))
     model.add(Dense(NUM_CLASSES, activation='sigmoid'))
 
-    sgd = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
     model.compile(loss='binary_crossentropy',
-                  optimizer='adam',
+                  optimizer='Adamax',
                   metrics=['accuracy'])
 
     datagen = get_datagen()
