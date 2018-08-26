@@ -15,8 +15,9 @@ from keras.preprocessing.image import load_img, img_to_array
 # the h5 file are split by DATA_SLICE constant
 
 
+SIZE = 92
 CURRENT_DIR: str = os.getcwd()
-DATA_SLICE: int = 2
+DATA_SLICE: int = 1
 CSV_TABLE = 'https://docs.google.com/spreadsheet/ccc?key=1OCbBLuG_de_Dpb8fxeu0Jcn_ZHWkzrrL7GM4Mfcvgnk&output=csv'
 CSV_VALIDATION_TABLE = 'https://docs.google.com/spreadsheet/ccc?key=1DL5ggzlILEQQSkmVXqX1HWMwg0jEPVo8jPIh2Lr7jaA&output=csv'
 
@@ -33,7 +34,7 @@ def get_folder_classes():
     next(reader)
 
     for row in reader:
-        tags_data[row[0]]: Dict[int] = list(map(int, row[1:-1]))
+        tags_data[row[0]]: Dict[int] = list(map(int, row[1:7]))
 
     return tags_data
 
@@ -104,42 +105,24 @@ def set_trained_data():
     for slice_index in range(DATA_SLICE):
         print('start work slice with', slice_index, 'of', DATA_SLICE)
 
-        test_data_list = []
-        test_label_list = []
-
         train_data_list = []
         train_label_list = []
 
-        index = 0
         for tags, image_name in data[slice_index::DATA_SLICE]:
-            image = img_to_array(load_img(image_name, grayscale=True))
+            image = img_to_array(load_img(image_name, grayscale=True, target_size=(SIZE, SIZE)))
 
-            if index % 4 == 0:
-                test_data_list.append(image)
-                test_label_list.append(tags)
-
-            else:
-                train_data_list.append(image)
-                train_label_list.append(tags)
-
-            index += 1
+            train_data_list.append(image)
+            train_label_list.append(tags)
 
         train_data = np.array(train_data_list).astype('uint8')
         train_label = np.array(train_label_list).astype('uint8')
-        test_data = np.array(test_data_list).astype('uint8')
-        test_label = np.array(test_label_list).astype('uint8')
 
         slice_str = str(slice_index).zfill(3)
         train_file = os.path.join(CURRENT_DIR, '..', 'data', 'train' + slice_str + '.h5')
-        test_file = os.path.join(CURRENT_DIR, '..', 'data', 'test' + slice_str + '.h5')
 
         with h5py.File(train_file, 'w') as hf:
             hf.create_dataset('train_data', data=train_data)
             hf.create_dataset('train_label', data=train_label)
-
-        with h5py.File(test_file, 'w') as hf:
-            hf.create_dataset('test_data', data=test_data)
-            hf.create_dataset('test_label', data=test_label)
 
 
 def set_validation_data():
@@ -148,7 +131,7 @@ def set_validation_data():
     validation_label_list = []
 
     for validation in validation_data:
-        image = img_to_array(load_img(validation[1], grayscale=True))
+        image = img_to_array(load_img(validation[1], grayscale=True, target_size=(SIZE, SIZE)))
 
         validation_data_list.append(image)
         validation_label_list.append(validation[0])
