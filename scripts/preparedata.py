@@ -1,6 +1,7 @@
 import csv
 import io
 import os
+import re
 from typing import Dict, List
 
 import h5py
@@ -15,9 +16,9 @@ from keras.preprocessing.image import load_img, img_to_array
 # the h5 file are split by DATA_SLICE constant
 
 
-SIZE = 92
+SIZE = 150
 CURRENT_DIR: str = os.getcwd()
-DATA_SLICE: int = 1
+DATA_SLICE: int = 3
 CSV_TABLE = 'https://docs.google.com/spreadsheet/ccc?key=1OCbBLuG_de_Dpb8fxeu0Jcn_ZHWkzrrL7GM4Mfcvgnk&output=csv'
 CSV_VALIDATION_TABLE = 'https://docs.google.com/spreadsheet/ccc?key=1DL5ggzlILEQQSkmVXqX1HWMwg0jEPVo8jPIh2Lr7jaA&output=csv'
 
@@ -56,6 +57,10 @@ def get_validation_folder_classes():
     return tags_data
 
 
+def get_class_number_by_tags(tags: List[int]):
+    return tags  # before code: int(''.join(map(str, tags)), 2)
+
+
 # Function are collecting information about rendered images to List
 # where each item have tags and absolute path to image like this
 # [ [[0,1,0,0,1], 'path\to\image.jpg'], [], ... ]
@@ -72,10 +77,13 @@ def get_renders_data():
         file_list = os.listdir(os.path.join(renders_dir, directory_name))
 
         for file_name in file_list:
-            result.append([
-                tags_data[directory_name],
-                os.path.join(renders_dir, directory_name, file_name),
-            ])
+            image_number = int(re.findall(r'\d+', file_name)[0])
+
+            if image_number <= 160:
+                result.append([
+                    get_class_number_by_tags(tags_data[directory_name]),
+                    os.path.join(renders_dir, directory_name, file_name),
+                ])
 
     return result
 
@@ -92,7 +100,7 @@ def get_validation_data():
 
     for tag in tags_data:
         result.append([
-            tags_data[tag],
+            get_class_number_by_tags(tags_data[tag]),
             os.path.join(images_dir, tag + '.jpg'),
         ])
 
@@ -109,7 +117,7 @@ def set_trained_data():
         train_label_list = []
 
         for tags, image_name in data[slice_index::DATA_SLICE]:
-            image = img_to_array(load_img(image_name, grayscale=True, target_size=(SIZE, SIZE)))
+            image = img_to_array(load_img(image_name, grayscale=False, target_size=(SIZE, SIZE)))
 
             train_data_list.append(image)
             train_label_list.append(tags)
@@ -131,7 +139,7 @@ def set_validation_data():
     validation_label_list = []
 
     for validation in validation_data:
-        image = img_to_array(load_img(validation[1], grayscale=True, target_size=(SIZE, SIZE)))
+        image = img_to_array(load_img(validation[1], grayscale=False, target_size=(SIZE, SIZE)))
 
         validation_data_list.append(image)
         validation_label_list.append(validation[0])
